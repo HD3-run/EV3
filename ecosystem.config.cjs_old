@@ -1,0 +1,48 @@
+const path = require('path');
+
+module.exports = {
+  apps: [
+    {
+      name: 'backend',
+      script: 'backend/index.ts',           // Backend entry file (compiled JS)
+      watch: false,                         // Set true if you want auto-restart on changes
+      cwd: path.resolve(__dirname),         // Current working directory
+      env: {
+        NODE_ENV: 'development',
+        PORT: 5000,
+        // Load dev.env variables manually if needed
+      },
+      env_production: {
+        NODE_ENV: 'production',
+        PORT: 5000,
+        // Load prod.env variables manually if needed
+      },
+      autorestart: true,
+      max_memory_restart: '512M',
+      merge_logs: true,
+      log_file: path.resolve(__dirname, 'logs/backend-combined.log'),
+      out_file: path.resolve(__dirname, 'logs/backend-out.log'),
+      error_file: path.resolve(__dirname, 'logs/backend-error.log')
+    },
+    {
+      name: 'frontend',
+      script: 'start-production.js',          // Script to start Vite/React server
+      watch: false,
+      cwd: path.resolve(__dirname),
+      env: {
+        NODE_ENV: 'development',
+        PORT: 5173
+      },
+      env_production: {
+        NODE_ENV: 'production',
+        PORT: 5173
+      },
+      autorestart: true,
+      max_memory_restart: '512M',
+      merge_logs: true,
+      log_file: path.resolve(__dirname, 'logs/frontend-combined.log'),
+      out_file: path.resolve(__dirname, 'logs/frontend-out.log'),
+      error_file: path.resolve(__dirname, 'logs/frontend-error.log')
+    }
+  ]
+};

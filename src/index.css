@@ -1,0 +1,164 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* Brand CSS variables for live theming */
+:root {
+  --brand-primary-500: #6C63FF;
+  --brand-primary-600: #5A52E6;
+  --brand-accent-500: #00E1FF;
+  --brand-accent-600: #04C7E0;
+  --brand-warm-500: #FFB703;
+  --brand-warm-600: #F59E0B;
+  --surface-900: #0B1220;
+  --surface-800: #111827;
+  --surface-700: #1F2937;
+  --text-primary: #F3F4F6;
+  --text-muted: #94A3B8;
+}
+
+/* Base styles */
+@layer base {
+  html, body, #root { height: 100%; }
+  
+  html {
+    /* Enable smooth scrolling with GPU acceleration */
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  
+  body {
+    font-family: 'Noto Sans', 'Noto Sans Devanagari', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+    background-color: var(--surface-900);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Improve performance */
+    -webkit-overflow-scrolling: touch;
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background: var(--brand-primary-600);
+    color: white;
+  }
+
+  /* Performance optimizations */
+  * {
+    /* Reduce repaints and reflows */
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* GPU acceleration for animated elements */
+  [class*="transition"],
+  [class*="animate"],
+  [class*="hover:"] {
+    will-change: auto;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+  }
+
+  /* Optimize sidebar transitions */
+  .sidebar-transition {
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+  }
+  
+  /* Optimize table rendering */
+  table {
+    contain: layout style;
+  }
+  
+  /* Optimize modal rendering */
+  [role="dialog"],
+  .modal {
+    contain: layout style paint;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* Utilities */
+@layer utilities {
+  .heading-gradient {
+    /* @apply is a Tailwind CSS directive - ignore linter warnings */
+    @apply bg-gradient-to-r from-brand-primary-500 to-brand-accent-500 bg-clip-text text-transparent;
+  }
+  .cta-gradient {
+    /* @apply is a Tailwind CSS directive - ignore linter warnings */
+    @apply bg-gradient-to-r from-brand-primary-600 to-brand-accent-600 text-white shadow-brand hover:shadow-accent;
+  }
+  .card-surface {
+    /* @apply is a Tailwind CSS directive - ignore linter warnings */
+    @apply bg-surface-800/60 backdrop-blur-xl border border-white/10 rounded-card;
+  }
+  .gradient-bg {
+    background: linear-gradient(135deg, #4F46E5, #8B5CF6, #EC4899);
+  }
+  .neo-brutalist-card {
+    border: 2px solid #ffffff33;
+    box-shadow: 8px 8px 0px rgba(255, 255, 255, 0.15);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .neo-brutalist-card:hover {
+    transform: translate(-4px, -4px);
+    box-shadow: 12px 12px 0px rgba(255, 255, 255, 0.2);
+  }
+  
+  /* Performance optimization utilities */
+  .gpu-accelerated {
+    transform: translateZ(0);
+    will-change: transform;
+    -webkit-transform: translateZ(0);
+  }
+  
+  .optimize-render {
+    contain: layout style paint;
+  }
+  
+  /* Reduce motion blur on transforms */
+  .smooth-transform {
+    transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0);
+  }
+  
+  /* Radial gradient utility */
+  .bg-gradient-radial {
+    background-image: radial-gradient(circle, var(--tw-gradient-stops));
+  }
+
+  /* Terminal-style scrollbar */
+  .terminal-scrollbar::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  .terminal-scrollbar::-webkit-scrollbar-track {
+    background: #000000;
+    border-left: 1px solid rgba(34, 197, 94, 0.3);
+  }
+
+  .terminal-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(34, 197, 94, 0.5);
+    border: 1px solid rgba(34, 197, 94, 0.8);
+    border-radius: 2px;
+  }
+
+  .terminal-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(34, 197, 94, 0.7);
+    border-color: rgba(34, 197, 94, 1);
+  }
+
+  /* Firefox scrollbar */
+  .terminal-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(34, 197, 94, 0.5) #000000;
+  }
+}
