@@ -109,5 +109,4 @@ pm2 startup
 
 ## ✅ Ready to Upload!
 
-Your codebase is now ready for EC2 deployment. All hardcoded values have been replaced with environment variables, and the build configuration is optimized for your EC2 instance's memory constraints.
 
