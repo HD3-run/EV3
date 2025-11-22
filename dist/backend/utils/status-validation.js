@@ -19,10 +19,6 @@ exports.EMPLOYEE_STATUS_TRANSITIONS = [
     },
     {
         from: constants_1.ORDER_STATUS.CONFIRMED,
-        to: [constants_1.ORDER_STATUS.PROCESSING, constants_1.ORDER_STATUS.SHIPPED, constants_1.ORDER_STATUS.CANCELLED]
-    },
-    {
-        from: constants_1.ORDER_STATUS.PROCESSING,
         to: [constants_1.ORDER_STATUS.SHIPPED, constants_1.ORDER_STATUS.CANCELLED]
     },
     {

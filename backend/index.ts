@@ -2,12 +2,28 @@ import compression from "compression";
 import multer from 'multer';
 import session from "express-session";
 import cookieParser from "cookie-parser";
-import 'dotenv/config';
 import express, { type Request, Response, NextFunction } from "express";
+import path from 'path';
+import fs from 'fs';
+import dotenv from 'dotenv';
 import cors from 'cors';
 import http from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 import helmet from 'helmet';
+
+// Load environment variables from envfiles directory
+// Use process.cwd() since PM2 runs from project root
+const envFile = process.env.NODE_ENV === 'production' ? 'prod.env' : 'dev.env';
+const envPath = path.join(process.cwd(), 'envfiles', envFile);
+
+if (fs.existsSync(envPath)) {
+  dotenv.config({ path: envPath });
+  console.log(`Loaded environment from ${envFile}`);
+} else {
+  // Fallback to default .env loading
+  dotenv.config();
+  console.warn(`Environment file ${envFile} not found, using .env or system environment`);
+}
 
 import { logger } from './utils/logger';
 import { sanitizeInput, preventUrlManipulation, logSecurityEvents } from './middleware/validation';
@@ -43,7 +59,9 @@ const io = new SocketIOServer(server, {
         'http://localhost:5001',
         'http://127.0.0.1:3000',
         'http://127.0.0.1:5173',
-        'http://127.0.0.1:5000'
+        'http://127.0.0.1:5000',
+        'http://13.234.118.33:5173',
+        'http://13.234.118.33:5000'
       ],
     credentials: true
   },
@@ -154,7 +172,9 @@ const corsOptions = {
       'http://localhost:5001',
       'http://127.0.0.1:3000',
       'http://127.0.0.1:5173',
-      'http://127.0.0.1:5000'
+      'http://127.0.0.1:5000',
+      'http://13.234.118.33:5173',
+      'http://13.234.118.33:5000'
     ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
@@ -165,7 +185,8 @@ const corsOptions = {
     'Accept',
     'Authorization',
     'x-csrf-token',
-    'Cache-Control'
+    'Cache-Control',
+    'Pragma'
   ],
   exposedHeaders: ['set-cookie']
 };
@@ -286,7 +307,7 @@ app.use(helmet({
       objectSrc: ["'none'"]
     }
   },
-  hsts: isProd ? { maxAge: 31536000, includeSubDomains: true } : false
+  hsts: false // Disabled - we're using HTTP, not HTTPS
 }));
 
 // Request size validation
@@ -298,15 +319,16 @@ app.use((req, res, next) => {
   next();
 });
 
-// HTTPS enforcement in production
-if (isProd) {
-  app.use((req, res, next) => {
-    if (req.header('x-forwarded-proto') !== 'https') {
-      return res.redirect(301, `https://${req.header('host')}${req.url}`);
-    }
-    next();
-  });
-}
+// HTTPS enforcement disabled - we're using HTTP, not HTTPS
+// If you add SSL/TLS later, uncomment this:
+// if (isProd) {
+//   app.use((req, res, next) => {
+//     if (req.header('x-forwarded-proto') !== 'https') {
+//       return res.redirect(301, `https://${req.header('host')}${req.url}`);
+//     }
+//     next();
+//   });
+// }
 
 
 

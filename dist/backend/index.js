@@ -41,12 +41,27 @@ const compression_1 = __importDefault(require("compression"));
 const multer_1 = __importDefault(require("multer"));
 const express_session_1 = __importDefault(require("express-session"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
-require("dotenv/config");
 const express_1 = __importDefault(require("express"));
+const path_1 = __importDefault(require("path"));
+const fs_1 = __importDefault(require("fs"));
+const dotenv_1 = __importDefault(require("dotenv"));
 const cors_1 = __importDefault(require("cors"));
 const http_1 = __importDefault(require("http"));
 const socket_io_1 = require("socket.io");
 const helmet_1 = __importDefault(require("helmet"));
+// Load environment variables from envfiles directory
+// Use process.cwd() since PM2 runs from project root
+const envFile = process.env.NODE_ENV === 'production' ? 'prod.env' : 'dev.env';
+const envPath = path_1.default.join(process.cwd(), 'envfiles', envFile);
+if (fs_1.default.existsSync(envPath)) {
+    dotenv_1.default.config({ path: envPath });
+    console.log(`Loaded environment from ${envFile}`);
+}
+else {
+    // Fallback to default .env loading
+    dotenv_1.default.config();
+    console.warn(`Environment file ${envFile} not found, using .env or system environment`);
+}
 const logger_1 = require("./utils/logger");
 const validation_1 = require("./middleware/validation");
 const csrf_protection_1 = require("./middleware/csrf-protection");
@@ -67,7 +82,9 @@ const io = new socket_io_1.Server(server, {
                 'http://localhost:5001',
                 'http://127.0.0.1:3000',
                 'http://127.0.0.1:5173',
-                'http://127.0.0.1:5000'
+                'http://127.0.0.1:5000',
+                'http://13.234.118.33:5173',
+                'http://13.234.118.33:5000'
             ],
         credentials: true
     },
@@ -163,7 +180,9 @@ const corsOptions = {
             'http://localhost:5001',
             'http://127.0.0.1:3000',
             'http://127.0.0.1:5173',
-            'http://127.0.0.1:5000'
+            'http://127.0.0.1:5000',
+            'http://13.234.118.33:5173',
+            'http://13.234.118.33:5000'
         ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
@@ -174,7 +193,8 @@ const corsOptions = {
         'Accept',
         'Authorization',
         'x-csrf-token',
-        'Cache-Control'
+        'Cache-Control',
+        'Pragma'
     ],
     exposedHeaders: ['set-cookie']
 };
@@ -275,7 +295,7 @@ app.use((0, helmet_1.default)({
             objectSrc: ["'none'"]
         }
     },
-    hsts: isProd ? { maxAge: 31536000, includeSubDomains: true } : false
+    hsts: false // Disabled - we're using HTTP, not HTTPS
 }));
 // Request size validation
 app.use((req, res, next) => {
@@ -285,15 +305,16 @@ app.use((req, res, next) => {
     }
     next();
 });
-// HTTPS enforcement in production
-if (isProd) {
-    app.use((req, res, next) => {
-        if (req.header('x-forwarded-proto') !== 'https') {
-            return res.redirect(301, `https://${req.header('host')}${req.url}`);
-        }
-        next();
-    });
-}
+// HTTPS enforcement disabled - we're using HTTP, not HTTPS
+// If you add SSL/TLS later, uncomment this:
+// if (isProd) {
+//   app.use((req, res, next) => {
+//     if (req.header('x-forwarded-proto') !== 'https') {
+//       return res.redirect(301, `https://${req.header('host')}${req.url}`);
+//     }
+//     next();
+//   });
+// }
 // Basic auth endpoints
 // Removed basic in-memory login route to ensure the real database-backed authentication in routes.ts is used.
 // Session validation and login endpoints are handled in routes.ts
@@ -388,6 +409,38 @@ async function startServer() {
         return null;
     }
 }
+// Process-level error handlers to prevent crashes
+process.on('uncaughtException', (error) => {
+    logger_1.logger.error('Uncaught Exception - Server will continue running', {
+        error: error.message,
+        stack: error.stack,
+        name: error.name
+    });
+    // Don't exit - let the server continue running
+    // The connection pool will handle dead connections
+});
+process.on('unhandledRejection', (reason, promise) => {
+    logger_1.logger.error('Unhandled Rejection - Server will continue running', {
+        reason: reason instanceof Error ? reason.message : String(reason),
+        stack: reason instanceof Error ? reason.stack : undefined
+    });
+    // Don't exit - let the server continue running
+});
+// Handle database connection errors gracefully
+process.on('SIGTERM', () => {
+    logger_1.logger.info('SIGTERM received, shutting down gracefully');
+    server.close(() => {
+        logger_1.logger.info('Server closed');
+        process.exit(0);
+    });
+});
+process.on('SIGINT', () => {
+    logger_1.logger.info('SIGINT received, shutting down gracefully');
+    server.close(() => {
+        logger_1.logger.info('Server closed');
+        process.exit(0);
+    });
+});
 startServer().catch(error => {
     logger_1.logger.error('Failed to start server', error);
     process.exit(1);

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.orderLimiter = exports.uploadLimiter = exports.authLimiter = exports.apiLimiter = void 0;
+exports.publicOrderLimiter = exports.orderLimiter = exports.uploadLimiter = exports.authLimiter = exports.apiLimiter = void 0;
 const express_rate_limit_1 = require("express-rate-limit");
 // General API rate limiting - More generous for development
 exports.apiLimiter = (0, express_rate_limit_1.rateLimit)({
@@ -35,5 +35,23 @@ exports.orderLimiter = (0, express_rate_limit_1.rateLimit)({
     windowMs: 60 * 1000, // 1 minute
     max: 50, // 50 orders per minute (increased from 10)
     message: { message: 'Too many orders created, please slow down' },
+});
+// Global rate limiting for public orders - shared across ALL users/IPs
+// This prevents 100 people ordering simultaneously from overwhelming the system
+exports.publicOrderLimiter = (0, express_rate_limit_1.rateLimit)({
+    windowMs: 60 * 1000, // 1 minute
+    max: 200, // 200 orders per minute globally (across all users)
+    message: { message: 'System is currently processing many orders. Please try again in a moment.' },
+    standardHeaders: true,
+    legacyHeaders: false,
+    // Use a shared store or skip successful requests to count all attempts
+    skipSuccessfulRequests: false, // Count all requests to track total load
+    handler: (req, res) => {
+        res.status(429).json({
+            success: false,
+            message: 'System is currently processing many orders. Please try again in a moment.',
+            retryAfter: 60 // Retry after 60 seconds
+        });
+    }
 });
 //# sourceMappingURL=rate-limit.js.map

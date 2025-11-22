@@ -1,0 +1,63 @@
+# Dependencies - install on EC2 with npm install
+node_modules/
+package-lock.json
+
+# Build outputs - regenerate on EC2
+dist/
+public/dist/
+
+# Version control
+.git/
+.gitignore
+
+# Environment files with secrets - create separately on EC2
+envfiles/*.env
+envfiles/dev.env
+envfiles/prod.env
+*.env
+.env
+.env.local
+.env.*.local
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary files
+cookies.txt
+*.tmp
+*.temp
+ecosystem.config.cjs_old
+
+# Coverage and testing
+coverage/
+.nyc_output/
+*.lcov
+
+# Documentation (optional - keep if you want)
+# AI/
+# *.md
+
+# Source maps (optional - can regenerate)
+*.map
+

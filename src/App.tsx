@@ -85,7 +85,7 @@ function App() {
   // Determine WebSocket URL based on environment
   // Socket.IO uses HTTP/HTTPS URLs, not ws:// URLs
   const wsUrl = (import.meta as any).env?.PROD 
-    ? 'http://13.201.116.161:5000' 
+    ? (import.meta.env.VITE_WS_URL || import.meta.env.VITE_API_URL || 'http://localhost:5000')
     : 'http://localhost:5000';
 
   return (

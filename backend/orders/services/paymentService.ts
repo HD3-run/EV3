@@ -37,7 +37,7 @@ export async function updatePaymentStatus(
   }
 
   // Validate payment method if provided
-  if (paymentMethod && !Object.values(PAYMENT_METHODS).includes(paymentMethod)) {
+  if (paymentMethod && !Object.values(PAYMENT_METHODS).includes(paymentMethod as any)) {
     throw new Error(`Invalid payment method. Must be one of: ${Object.values(PAYMENT_METHODS).join(', ')}`);
   }
 

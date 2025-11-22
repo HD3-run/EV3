@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, useReducedMotion, useInView } from "framer-motion";
-import { Package, Truck, BarChart3, ShoppingCart, ArrowRight, Play } from "lucide-react";
+import { ArrowRight, Play } from "lucide-react";
 import { Button } from "../components/ui/button";
 import NavBar from "../components/NavBar";
 import FeaturesGrid from "../components/sections/FeaturesGrid";

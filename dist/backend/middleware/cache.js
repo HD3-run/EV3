@@ -57,10 +57,17 @@ function cacheMiddleware(ttlSeconds = 300) {
             return next();
         }
         // Create cache key from URL and user session
+        // Include query parameters in cache key to differentiate filters
         const cacheKey = `${req.originalUrl}_${req.session?.userId}`;
         console.log('🔍 Cache middleware - checking key:', cacheKey);
         console.log('👤 Session userId:', req.session?.userId);
         console.log('🌐 Original URL:', req.originalUrl);
+        // Don't cache if query has cache-busting parameter or if filtering by "assigned"
+        // The assigned filter needs fresh data since assignments don't change status
+        if (req.query._t || req.query.status === 'assigned') {
+            console.log('🚫 Cache-busting parameter or assigned filter detected, skipping cache');
+            return next();
+        }
         // Try to get from cache
         const cachedData = cache.get(cacheKey);
         if (cachedData) {
@@ -86,8 +93,9 @@ function invalidateUserCache(userId) {
     console.log('🔄 Starting cache invalidation for user:', userIdStr);
     console.log('📊 Current cache keys:', Array.from(cache['cache'].keys()));
     let invalidatedCount = 0;
+    // Invalidate all cache entries for this user (including all filter variations)
     for (const key of cache['cache'].keys()) {
-        if (key.includes(`_${userIdStr}`)) {
+        if (key.endsWith(`_${userIdStr}`) || key.includes(`_${userIdStr}`)) {
             console.log('🗑️ Invalidating user cache key:', key);
             cache.delete(key);
             invalidatedCount++;

@@ -29,7 +29,7 @@ export function validatePaymentStatus(paymentStatus?: string): void {
  * Validate payment method
  */
 export function validatePaymentMethod(paymentMethod?: string): void {
-  if (paymentMethod && !Object.values(PAYMENT_METHODS).includes(paymentMethod)) {
+  if (paymentMethod && !Object.values(PAYMENT_METHODS).includes(paymentMethod as any)) {
     throw new Error(`Invalid payment method. Must be one of: ${Object.values(PAYMENT_METHODS).join(', ')}`);
   }
 }

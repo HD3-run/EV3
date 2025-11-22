@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { X } from 'lucide-react';
 import type { CheckoutData } from '../types/publicCatalog.types';
-import { getCartTotal } from '../utils/cartUtils';
 import { DEFAULT_COUNTRY } from '../constants/publicCatalogConstants';
 
 interface CheckoutModalProps {

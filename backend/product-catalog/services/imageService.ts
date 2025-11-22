@@ -50,7 +50,7 @@ export async function uploadImageService(
   const { s3Key, imageUrl } = uploadResult;
 
   // Get is_featured value
-  const shouldBeFeatured = is_featured === 'true' || is_featured === true || is_featured === 1 || is_featured === '1';
+  const shouldBeFeatured = is_featured === 'true' || is_featured === true || (typeof is_featured === 'number' && is_featured === 1) || is_featured === '1';
   
   // If this is primary, unset other primary images
   if (is_primary === 'true' || is_primary === true) {

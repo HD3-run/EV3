@@ -299,7 +299,7 @@ export async function processProductCSV(
       await client.query('COMMIT');
 
       // Add successful results
-      createdProducts.push(...inventoryResults.map((_, index) => ({
+      createdProducts.push(...inventoryResults.map((_: any, index: number) => ({
         ...batch[index],
         productId: productResults[index].product_id,
         sku: productResults[index].sku,

@@ -44,10 +44,10 @@ const pool = new pg_1.Pool({
     ssl: {
         rejectUnauthorized: false
     },
-    max: 20, // Increased for better concurrency
-    min: 5, // Keep more connections ready
-    idleTimeoutMillis: 30000, // Increased timeout
-    connectionTimeoutMillis: 10000, // Increased connection timeout
+    max: 90, // Increased for better concurrency and high load handling
+    min: 10, // Keep more connections ready to reduce connection overhead
+    idleTimeoutMillis: 30000, // 30 seconds - connections idle longer than this are closed
+    connectionTimeoutMillis: 10000, // 10 seconds to establish new connection
     statement_timeout: 10000, // 10 second query timeout
     query_timeout: 10000,
     keepAlive: true,

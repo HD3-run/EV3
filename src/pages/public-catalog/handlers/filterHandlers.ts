@@ -1,9 +1,10 @@
 import type { PaginationState } from '../types/publicCatalog.types';
+import type { Dispatch, SetStateAction } from 'react';
 
 export interface FilterHandlers {
-  onSearchChange: (searchTerm: string, setSearchTerm: (term: string) => void, setPagination: (prev: PaginationState) => PaginationState) => void;
-  onCategoryChange: (category: string, setCategory: (cat: string) => void, setPagination: (prev: PaginationState) => PaginationState) => void;
-  onPageChange: (page: number, setPagination: (prev: PaginationState) => PaginationState, totalPages: number) => void;
+  onSearchChange: (searchTerm: string, setSearchTerm: (term: string) => void, setPagination: Dispatch<SetStateAction<PaginationState>>) => void;
+  onCategoryChange: (category: string, setCategory: (cat: string) => void, setPagination: Dispatch<SetStateAction<PaginationState>>) => void;
+  onPageChange: (page: number, setPagination: Dispatch<SetStateAction<PaginationState>>, totalPages: number) => void;
 }
 
 export const filterHandlers: FilterHandlers = {

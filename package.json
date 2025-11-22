@@ -7,14 +7,15 @@
     "dev:frontend": "vite",
     "dev:backend": "tsx watch backend/index.ts",
     "build": "npm run build:frontend && npm run build:backend",
-    "build:frontend": "tsc && vite build",
-    "build:backend": "tsc --project tsconfig.backend.json",
+    "build:frontend": "cross-env NODE_OPTIONS=--max-old-space-size=2048 npm run build:frontend:internal",
+    "build:frontend:internal": "tsc && vite build",
+    "build:backend": "cross-env NODE_OPTIONS=--max-old-space-size=2048 tsc --project tsconfig.backend.json",
     "start": "cross-env NODE_ENV=production node start-production.mjs",
     "start:dev": "tsx backend/index.ts",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "verify": "node verify-setup.js",
-    "postinstall": "npm run build"
+    "postinstall": "echo 'Skipping auto-build on install. Run npm run build manually after setting up environment.'"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.916.0",
@@ -58,7 +59,6 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
-    "@types/argon2": "^0.15.0",
     "@types/bcrypt": "^5.0.2",
     "@types/compression": "^1.8.1",
     "@types/cookie-parser": "^1.4.9",

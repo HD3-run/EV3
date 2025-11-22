@@ -16,7 +16,7 @@ export async function updateOrderStatus(
 ) {
   // Validate status value using constants
   const validStatuses = Object.values(ORDER_STATUS);
-  if (!validStatuses.includes(newStatus)) {
+  if (!validStatuses.includes(newStatus as any)) {
     throw new Error(`Invalid status. Must be one of: ${validStatuses.join(', ')}`);
   }
 

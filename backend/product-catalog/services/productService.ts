@@ -19,7 +19,7 @@ export interface CreateProductData {
   unit_of_measure?: string;
   min_stock_level?: number;
   max_stock_level?: number;
-  is_featured?: boolean;
+  is_featured?: boolean | string | number;
   tags?: any[];
   catalog_metadata?: any;
 }
@@ -103,7 +103,7 @@ export async function createProductService(
   
   if (existingColumns.includes('is_featured')) {
     catalogColumns.push('is_featured');
-    const featuredValue = is_featured === 'true' || is_featured === true || is_featured === 1;
+    const featuredValue = (typeof is_featured === 'string' && is_featured === 'true') || is_featured === true || (typeof is_featured === 'number' && is_featured === 1);
     catalogValues.push(featuredValue);
   }
   
