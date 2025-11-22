@@ -19,7 +19,9 @@ export const USER_ROLES = {
   ADMIN: 'admin',
   MANAGER: 'manager',
   EMPLOYEE: 'employee',
-  PICKUP: 'pickup'
+  PICKUP: 'pickup',
+  DELIVERY: 'Delivery',
+  SHIPMENT: 'Shipment'
 } as const;
 
 export type UserRole = typeof USER_ROLES[keyof typeof USER_ROLES];
@@ -51,7 +53,7 @@ export const FILE_UPLOAD = {
   MAX_SIZE: 8 * 1024 * 1024, // 8MB
   ALLOWED_TYPES: [
     'image/jpeg',
-    'image/png', 
+    'image/png',
     'image/gif',
     'text/csv',
     'application/vnd.ms-excel',

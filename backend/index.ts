@@ -51,7 +51,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new SocketIOServer(server, {
   cors: {
-    origin: isProd ? 
+    origin: isProd ?
       (process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : ['*']) :
       [
         'http://localhost:3000',
@@ -120,7 +120,7 @@ io.on('connection', (socket) => {
       timestamp: data.timestamp,
       socketId: socket.id
     });
-    
+
     // Send response back to confirm connection is working
     socket.emit('connection-test-response', {
       success: true,
@@ -164,7 +164,7 @@ app.use('/api', (_req, res, next) => {
 
 // Enhanced CORS configuration
 const corsOptions = {
-  origin: isProd ? 
+  origin: isProd ?
     (process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : []) :
     [
       'http://localhost:3000',
@@ -360,7 +360,7 @@ if (process.env.NODE_ENV === 'development') {
         time: '2024-01-01T11:30:00Z'
       }
     ];
-    
+
     res.json(mockPicks);
   });
 
@@ -378,7 +378,7 @@ if (process.env.NODE_ENV === 'development') {
         color: 'text-blue-400'
       }
     ];
-    
+
     res.json(mockActivities);
   });
 }
@@ -389,7 +389,7 @@ async function setupRoutes() {
     logger.info('Attempting to load full routes...');
     const { registerRoutes } = await import('./routes');
     registerRoutes(app);
-    
+
     // Add catch-all route for SPA after API routes
     if (isProd) {
       const path = require('path');
@@ -397,7 +397,7 @@ async function setupRoutes() {
         res.sendFile(path.join(__dirname, '../frontend/index.html'));
       });
     }
-    
+
     logger.info('Full routes loaded successfully');
     return app;
   } catch (error) {
@@ -426,7 +426,7 @@ async function startServer() {
   try {
     // Try to setup full routes first
     const httpServer = await setupRoutes();
-    
+
     if (httpServer) {
       server.listen(PORT, '0.0.0.0', () => {
         logger.info(`Server running on 0.0.0.0:${PORT}`);
@@ -476,7 +476,12 @@ process.on('SIGINT', () => {
   });
 });
 
-startServer().catch(error => {
-  logger.error('Failed to start server', error);
-  process.exit(1);
-});
+// Start the server only if not in test mode
+if (process.env.NODE_ENV !== 'test') {
+  startServer().catch(error => {
+    logger.error('Failed to start server', error);
+    process.exit(1);
+  });
+}
+
+export { app, setupRoutes };
