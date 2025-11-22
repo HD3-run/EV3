@@ -216,22 +216,28 @@ export default function Orders() {
   };
 
   const handleAddOrderWrapper = async () => {
-    await handleAddOrder(newOrder, {
-      setFormErrors,
-      setOrders,
-      setShowAddOrderModal,
-      setNewOrder,
-      setManualProductId,
-      setProductIdError,
-      setIsValidatingProductId,
-      loadTotalOrdersWrapper
-    });
+    // Note: Loading states managed by handleAddOrder internally
+    try {
+      await handleAddOrder(newOrder, {
+        setFormErrors,
+        setOrders,
+        setShowAddOrderModal,
+        setNewOrder,
+        setManualProductId,
+        setProductIdError,
+        setIsValidatingProductId,
+        loadTotalOrdersWrapper
+      });
+    } catch (error) {
+      console.error('Error adding order:', error);
+      // Error is already handled in handleAddOrder, this is just for safety
+    }
   };
 
   const handleStatusUpdateWrapper = async (orderId: string, newStatus: string) => {
-    await handleStatusUpdate(orderId, newStatus, orders, userRole, { 
-      setOrders, 
-      loadOrders: loadOrdersWrapper 
+    await handleStatusUpdate(orderId, newStatus, orders, userRole, {
+      setOrders,
+      loadOrders: loadOrdersWrapper
     });
   };
 
@@ -252,22 +258,33 @@ export default function Orders() {
   };
 
   const submitPaymentWrapper = async () => {
-    await submitPayment(selectedPaymentOrder, paymentData, {
-      setIsUpdatingPayment,
-      handlePaymentUpdate: handlePaymentUpdateWrapper,
-      setShowPaymentModal,
-      setSelectedPaymentOrder,
-      setPaymentData
-    });
+    setIsUpdatingPayment(true);
+    try {
+      await submitPayment(selectedPaymentOrder, paymentData, {
+        setIsUpdatingPayment,
+        handlePaymentUpdate: handlePaymentUpdateWrapper,
+        setShowPaymentModal,
+        setSelectedPaymentOrder,
+        setPaymentData
+      });
+    } finally {
+      setIsUpdatingPayment(false);
+    }
   };
 
   const submitReturnWrapper = async () => {
-    await submitReturn(selectedOrder, returnData, {
-      loadOrdersWrapper,
-      setShowReturnModal,
-      setReturnData,
-      setSelectedOrder
-    });
+    // Note: Loading state managed by submitReturn internally
+    try {
+      await submitReturn(selectedOrder, returnData, {
+        loadOrdersWrapper,
+        setShowReturnModal,
+        setReturnData,
+        setSelectedOrder
+      });
+    } catch (error) {
+      console.error('Error submitting return:', error);
+      // Error is already handled in submitReturn, this is just for safety
+    }
   };
 
   const handleReturnClickWrapper = (order: Order) => {
@@ -324,12 +341,12 @@ export default function Orders() {
     toggleOrderExpansion(orderId, expandedOrders, setExpandedOrders);
   };
 
-    return (
-      <Layout>
+  return (
+    <Layout>
       <div className="p-4 sm:p-6 lg:p-8">
         <div className="mb-8">
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6">Orders</h1>
-          
+
           <MetricsCards
             totalOrders={totalOrders}
             totalRevenue={totalRevenue}
@@ -359,7 +376,7 @@ export default function Orders() {
             onErrorsClick={() => setShowErrorsModal(true)}
             userRole={userRole}
           />
-              </div>
+        </div>
 
         <OrdersList
           loading={loading}
@@ -379,8 +396,8 @@ export default function Orders() {
           currentPage={currentPage}
           totalOrders={totalOrders}
           onPageChange={handlePageChange}
-                      />
-                    </div>
+        />
+      </div>
 
       {/* Modals */}
       <AssignmentModal
@@ -427,9 +444,9 @@ export default function Orders() {
         show={showCustomerDetailsModal}
         customerDetails={selectedCustomerDetails}
         onClose={() => {
-                  setShowCustomerDetailsModal(false);
-                  setSelectedCustomerDetails(null);
-                }}
+          setShowCustomerDetailsModal(false);
+          setSelectedCustomerDetails(null);
+        }}
       />
 
       <ReturnModal
@@ -439,10 +456,10 @@ export default function Orders() {
         onReturnDataChange={setReturnData}
         onSubmit={submitReturnWrapper}
         onClose={() => {
-                    setShowReturnModal(false);
-                    setReturnData({ reason: '', returnItems: [] });
-                    setSelectedOrder(null);
-                  }}
+          setShowReturnModal(false);
+          setReturnData({ reason: '', returnItems: [] });
+          setSelectedOrder(null);
+        }}
       />
 
       <ProcessingErrorsModal
