@@ -173,7 +173,7 @@ export async function handleStatusUpdate(
 ): Promise<void> {
   // Find the order to check payment status
   const order = orders.find(o => o.id === orderId);
-  
+
   if (!order) {
     alert('Order not found');
     return;
@@ -187,17 +187,17 @@ export async function handleStatusUpdate(
     if (toStatus === 'pending') {
       return false;
     }
-    
+
     // Admin can change any status to any other status (except pending)
     if (role === 'admin') {
       return true;
     }
-    
+
     // 'delivered' is final status for all roles - cannot change from delivered
     if (fromStatus === 'delivered') {
       return false;
     }
-    
+
     // Delivery role permissions - can ONLY change shipped → delivered
     // Can also change from assigned → delivered directly
     // NO cancelled option for Delivery role
@@ -214,7 +214,7 @@ export async function handleStatusUpdate(
       }
       return false;
     }
-    
+
     // Shipment role permissions - can ONLY change confirmed → shipped (shipped is final for them)
     // Can also change from assigned → shipped directly
     // NO cancelled option for Shipment role
@@ -235,7 +235,7 @@ export async function handleStatusUpdate(
       }
       return false;
     }
-    
+
     // Employee role permissions - can only move forward in status flow, not backwards
     // Status flow: pending → confirmed → shipped → delivered
     // Cannot go backwards (e.g., shipped → confirmed) or to returned/cancelled/pending
@@ -253,7 +253,7 @@ export async function handleStatusUpdate(
       const statusOrder = ['pending', 'confirmed', 'shipped', 'delivered'];
       const fromIndex = statusOrder.indexOf(fromStatus);
       const toIndex = statusOrder.indexOf(toStatus);
-      
+
       // If both statuses are in the order, prevent backwards transitions
       if (fromIndex !== -1 && toIndex !== -1 && toIndex < fromIndex) {
         return false; // Backwards transition not allowed
@@ -261,7 +261,7 @@ export async function handleStatusUpdate(
       // Allow forward transitions or transitions involving 'assigned' status
       return true;
     }
-    
+
     return false;
   };
 
@@ -278,7 +278,7 @@ export async function handleStatusUpdate(
     alert(errorMessage);
     return;
   }
-  
+
   // Prevent setting status to 'delivered' unless order is paid
   if (newStatus === 'delivered' && order.paymentStatus !== 'paid') {
     alert('Cannot mark order as delivered until payment is received. Please mark the order as paid first.');
@@ -298,12 +298,12 @@ export async function handleStatusUpdate(
   }
 
   try {
-    const endpoint = userRole === 'admin' 
-      ? `/api/orders/${orderId}/status` 
+    const endpoint = userRole === 'admin'
+      ? `/api/orders/${orderId}/status`
       : `/api/employee/orders/${orderId}/status`;
-    
+
     const method = userRole === 'admin' ? 'PATCH' : 'PUT';
-    
+
     const response = await fetch(getApiUrl(endpoint), {
       method: method,
       headers: {
@@ -315,20 +315,13 @@ export async function handleStatusUpdate(
 
     if (response.ok) {
       // Update local state immediately for better UX
-      callbacks.setOrders(prevOrders => 
-        prevOrders.map(order => 
+      callbacks.setOrders(prevOrders =>
+        prevOrders.map(order =>
           order.id === orderId ? { ...order, status: newStatus } : order
         )
       );
-      // Only reload if needed for additional data (like assignment info)
-      // For most status changes, the local update is sufficient
-      // Use a delayed reload to avoid jarring refresh, and only if really needed
-      if (callbacks.loadOrders && (newStatus === 'assigned' || newStatus === 'delivered')) {
-        // Only reload for statuses that might affect other data
-        setTimeout(async () => {
-          await callbacks.loadOrders?.();
-        }, 500);
-      }
+      // Note: If additional data is needed (like assignment info), 
+      // it should be included in the API response, not fetched separately
     } else {
       const errorData = await response.json();
       alert(errorData.message || 'Failed to update order status');

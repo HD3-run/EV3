@@ -168,16 +168,13 @@ export async function submitPayment(
       paymentData.pricePerUnit
     );
 
-    console.log('⏰ Waiting before closing modal...');
-
-    // Small delay to let user see the updated values before closing modal
-    setTimeout(() => {
-      console.log('🔒 Closing payment modal');
-      callbacks.setShowPaymentModal(false);
-      callbacks.setSelectedPaymentOrder(null);
-      callbacks.setPaymentData({ pricePerUnit: 0, paymentMethod: 'cash' });
-      callbacks.setIsUpdatingPayment(false);
-    }, 800);
+    // Close modal immediately after successful update
+    // The isUpdatingPayment flag prevents double submissions
+    console.log('✅ Payment updated successfully, closing modal');
+    callbacks.setShowPaymentModal(false);
+    callbacks.setSelectedPaymentOrder(null);
+    callbacks.setPaymentData({ pricePerUnit: 0, paymentMethod: 'cash' });
+    callbacks.setIsUpdatingPayment(false);
 
   } catch (error) {
     console.error('💥 Payment update failed:', error);

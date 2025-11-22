@@ -64,11 +64,17 @@ export function useWebSocketOrders({
 
     // Access the socket from the global io object
     const socket = (window as any).io;
-    if (socket && socket.connected) {
-      socket.on('order-status-updated', handleOrderStatusUpdate);
+    if (socket) {
+      // Only add listener if socket exists
+      if (socket.connected) {
+        socket.on('order-status-updated', handleOrderStatusUpdate);
+      }
 
+      // Always cleanup the listener, regardless of connection status
       return () => {
-        socket.off('order-status-updated', handleOrderStatusUpdate);
+        if (socket) {
+          socket.off('order-status-updated', handleOrderStatusUpdate);
+        }
       };
     }
   }, [isConnected, setOrders, setTotalRevenue, setPendingOrders, loadMetricsWrapper, loadOrdersWrapper]);

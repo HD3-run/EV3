@@ -5,6 +5,7 @@ import { loadOrders, loadTotalOrders } from '../queries/orderQueries';
 import { loadMetrics } from '../queries/metricsQueries';
 import { loadEmployees } from '../queries/employeeQueries';
 import { loadProducts } from '../queries/productQueries';
+import { SEARCH_DEBOUNCE_DELAY } from '../constants/timing';
 import type { Order } from '../types/order.types';
 
 export function useOrderManagement(userRole: string) {
@@ -20,6 +21,7 @@ export function useOrderManagement(userRole: string) {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [appliedSearchTerm, setAppliedSearchTerm] = useState<string>('');
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const searchDebounceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [employees, setEmployees] = useState([]);
   const [products, setProducts] = useState<any[]>([]);
@@ -55,7 +57,12 @@ export function useOrderManagement(userRole: string) {
 
   // Debounce search term - automatically search after user stops typing for 500ms
   useEffect(() => {
-    const timer = setTimeout(() => {
+    // Clear any existing timer
+    if (searchDebounceTimerRef.current) {
+      clearTimeout(searchDebounceTimerRef.current);
+    }
+
+    searchDebounceTimerRef.current = setTimeout(() => {
       if (appliedSearchTerm !== searchTerm) {
         setAppliedSearchTerm(searchTerm);
         setCurrentPage(1);
@@ -64,9 +71,15 @@ export function useOrderManagement(userRole: string) {
           searchInputRef.current.focus();
         }
       }
-    }, 500); // Wait 500ms after user stops typing
+      searchDebounceTimerRef.current = null;
+    }, SEARCH_DEBOUNCE_DELAY); // Wait after user stops typing
 
-    return () => clearTimeout(timer);
+    return () => {
+      if (searchDebounceTimerRef.current) {
+        clearTimeout(searchDebounceTimerRef.current);
+        searchDebounceTimerRef.current = null;
+      }
+    };
   }, [searchTerm, appliedSearchTerm]);
 
   // Reset to first page when filters change and reload data
@@ -122,12 +135,16 @@ export function useOrderManagement(userRole: string) {
 
   const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
+      // Cancel any pending debounce timer to prevent duplicate API calls
+      if (searchDebounceTimerRef.current) {
+        clearTimeout(searchDebounceTimerRef.current);
+        searchDebounceTimerRef.current = null;
+      }
+
       // Immediately apply search on Enter
+      // The useEffect for appliedSearchTerm will handle loading orders
       setAppliedSearchTerm(searchTerm);
       setCurrentPage(1);
-      const urlParams = new URLSearchParams(window.location.search);
-      const dateParam = urlParams.get('date');
-      loadOrdersWrapper(1, dateParam || undefined);
     }
   };
 

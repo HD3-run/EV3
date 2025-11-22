@@ -1,6 +1,7 @@
 // API query functions for orders
 
 import { getApiUrl } from '../../../config/api';
+import { ORDERS_PER_PAGE } from '../constants/timing';
 import type { Order } from '../types/order.types';
 
 /**
@@ -15,25 +16,25 @@ export const loadOrders = async (
   try {
     // Build query parameters for server-side filtering and pagination
     const params = new URLSearchParams({
-      limit: '50',
+      limit: ORDERS_PER_PAGE.toString(),
       page: page.toString()
     });
-    
+
     if (searchTerm) {
       params.append('search', searchTerm);
     }
-    
+
     if (filterType && filterType !== 'all') {
       params.append('status', filterType);
     }
-    
+
     // Handle date filtering from URL parameters or passed parameter
     const currentDateParam = date || new URLSearchParams(window.location.search).get('date');
     if (currentDateParam) {
       params.append('date', currentDateParam);
       console.log('🔍 Loading orders with date filter:', currentDateParam);
     }
-    
+
     // Load orders with server-side pagination and filtering
     // Add cache-busting parameter to avoid stale cached data
     params.append('_t', Date.now().toString());
@@ -66,7 +67,7 @@ export const loadOrders = async (
               payment_status: order.payment_status
             });
           }
-          
+
           return {
             id: order.order_id.toString(),
             orderId: `ORD${order.order_id}`,
@@ -122,7 +123,7 @@ export const loadOrders = async (
  */
 export const loadTotalOrders = async (): Promise<number> => {
   try {
-    const response = await fetch(getApiUrl('/api/orders?limit=50&page=1'), {
+    const response = await fetch(getApiUrl(`/api/orders?limit=${ORDERS_PER_PAGE}&page=1`), {
       credentials: 'include'
     });
 
